@@ -3,6 +3,7 @@ package handlers
 import (
 	"errors"
 	"fmt"
+	"log"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -14,6 +15,14 @@ import (
 func RespondError(c *gin.Context, status int, err error) {
 	if err == nil {
 		c.Status(status)
+		return
+	}
+
+	log.Printf("RespondError: status=%d, error=%s", status, err.Error())
+
+	// Check for custom error messages
+	if status == http.StatusBadRequest {
+		c.JSON(status, ErrorResponse{Error: err.Error()})
 		return
 	}
 
@@ -51,6 +60,14 @@ func RespondError(c *gin.Context, status int, err error) {
 func HandleError(c *gin.Context, err error, notFoundErr error, notFoundMsg string) {
 	if errors.Is(err, notFoundErr) {
 		RespondError(c, http.StatusNotFound, fmt.Errorf("%s", notFoundMsg))
+		return
+	}
+	if err.Error() == "некорректный ID" || err.Error() == "ID должен быть положительным целым числом" {
+		RespondError(c, http.StatusBadRequest, err)
+		return
+	}
+	if err.Error() == "ID должен быть положительным целым числом" {
+		RespondError(c, http.StatusBadRequest, err)
 		return
 	}
 	RespondError(c, http.StatusInternalServerError, fmt.Errorf("внутренняя ошибка сервера: %w", err))

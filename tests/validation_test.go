@@ -1,6 +1,7 @@
 package tests
 
 import (
+	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -13,8 +14,8 @@ import (
 )
 
 func setupTestRouter() *gin.Engine {
-	db := getTestDB(nil)
-	cleanUsers(nil, db)
+	db := GetTestDB(nil)
+	CleanUsers(nil, db)
 
 	userHandler := handlers.NewUserHandler(db, "test-secret")
 	orderHandler := handlers.NewOrderHandler(db)
@@ -39,6 +40,7 @@ func TestNegativeIDValidation(t *testing.T) {
 	req, _ := http.NewRequest(http.MethodGet, "/users/-1", nil)
 	w := httptest.NewRecorder()
 	r.ServeHTTP(w, req)
+	fmt.Printf("Response: %s\n", w.Body.String())
 	require.Equal(t, http.StatusBadRequest, w.Code)
 	require.Contains(t, w.Body.String(), "ID должен быть положительным целым числом")
 
@@ -66,4 +68,16 @@ func TestCreateOrderForNonExistentUser(t *testing.T) {
 	r.ServeHTTP(w, req)
 	require.Equal(t, http.StatusNotFound, w.Code)
 	require.Contains(t, w.Body.String(), "пользователь не найден")
+}
+
+func TestInvalidToken(t *testing.T) {
+	r := setupTestRouter()
+
+	// Test for accessing protected route with invalid token
+	req, _ := http.NewRequest(http.MethodGet, "/users/1", nil)
+	req.Header.Set("Authorization", "Bearer invalid-token")
+	w := httptest.NewRecorder()
+	r.ServeHTTP(w, req)
+	require.Equal(t, http.StatusUnauthorized, w.Code)
+	require.Contains(t, w.Body.String(), "недействительный токен")
 }

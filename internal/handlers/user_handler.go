@@ -7,8 +7,8 @@ import (
 	"strconv"
 	"strings"
 
-	"kvant_task/internal/services"
 	"kvant_task/internal/middleware"
+	"kvant_task/internal/services"
 
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
@@ -161,7 +161,7 @@ func (h *UserHandler) List(c *gin.Context) {
 func (h *UserHandler) GetByID(c *gin.Context) {
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil || id <= 0 {
-		HandleError(c, fmt.Errorf("некорректный ID"), nil, "ID должен быть положительным целым числом")
+		HandleError(c, fmt.Errorf("ID должен быть положительным целым числом"), nil, "ID должен быть положительным целым числом")
 		return
 	}
 	u, err := h.svc.GetByID(c.Request.Context(), uint(id))

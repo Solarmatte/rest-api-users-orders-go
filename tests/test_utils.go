@@ -45,10 +45,20 @@ func getTestDB(t *testing.T) *gorm.DB {
 	return db
 }
 
+// GetTestDB экспортируемая обертка для getTestDB.
+func GetTestDB(t *testing.T) *gorm.DB {
+	return getTestDB(t)
+}
+
 // cleanUsers очищает таблицы users и orders и сбрасывает последовательности.
 func cleanUsers(t *testing.T, db *gorm.DB) {
 	err := db.Exec("TRUNCATE TABLE orders, users RESTART IDENTITY CASCADE").Error
 	require.NoError(t, err, "не удалось очистить таблицы users и orders")
+}
+
+// CleanUsers экспортируемая обертка для cleanUsers.
+func CleanUsers(t *testing.T, db *gorm.DB) {
+	cleanUsers(t, db)
 }
 
 // generateTestToken создаёт JWT токен для тестов сервисов и хендлеров.
