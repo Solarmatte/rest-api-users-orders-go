@@ -1,3 +1,7 @@
+// user_handler.go
+// Этот файл реализует HTTP-слой для работы с пользователями.
+// Содержит обработчики маршрутов, связанных с пользователями.
+
 package handlers
 
 import (
@@ -19,7 +23,7 @@ type UserHandler struct {
 	svc *services.UserService
 }
 
-// NewUserHandler конструктор.
+// NewUserHandler конструктор для создания нового UserHandler.
 func NewUserHandler(db *gorm.DB, jwtSecret string) *UserHandler {
 	return &UserHandler{svc: services.NewUserService(db, jwtSecret)}
 }

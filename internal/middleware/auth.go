@@ -1,3 +1,7 @@
+// auth.go
+// Этот файл содержит middleware для аутентификации.
+// Реализует проверку JWT токенов для защиты маршрутов.
+
 package middleware
 
 import (
@@ -21,7 +25,7 @@ func IsTokenInvalidated(token string) bool {
 	return exists
 }
 
-// Auth проверяет JWT и кладёт user_id в контекст.
+// Auth middleware для проверки JWT токенов.
 func Auth(secret string) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		header := c.GetHeader("Authorization")

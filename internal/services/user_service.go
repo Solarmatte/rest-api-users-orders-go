@@ -1,3 +1,7 @@
+// user_service.go
+// Этот файл содержит бизнес-логику для работы с пользователями.
+// Реализует методы для создания, обновления, удаления и получения пользователей.
+
 package services
 
 import (
@@ -14,9 +18,12 @@ import (
 )
 
 var (
-	ErrUserExists         = errors.New("пользователь с таким email уже существует")
+	// ErrUserExists ошибка, если пользователь с таким email уже существует.
+	ErrUserExists = errors.New("пользователь с таким email уже существует")
+	// ErrInvalidCredentials ошибка, если email или пароль неверны.
 	ErrInvalidCredentials = errors.New("неверный email или пароль")
-	ErrNotFound           = gorm.ErrRecordNotFound
+	// ErrNotFound ошибка, если пользователь не найден.
+	ErrNotFound = gorm.ErrRecordNotFound
 )
 
 // RegisterRequest данные для создания пользователя

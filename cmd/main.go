@@ -30,9 +30,13 @@ import (
 	"kvant_task/internal/router"
 )
 
+// main.go
+// Этот файл является точкой входа в приложение.
+// Реализует запуск сервера, подключение к базе данных и обработку сигналов завершения.
+
 func main() {
 	// Загрузка конфигурации из файла или переменных окружения
-	cfg, err := config.Load()
+	cfg, err := config.LoadConfig()
 	if err != nil {
 		log.Fatalf("[main] конфигурация: %v", err)
 	}

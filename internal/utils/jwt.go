@@ -1,3 +1,7 @@
+// jwt.go
+// Этот файл содержит утилиты для работы с JWT токенами.
+// Реализует функции для генерации и проверки токенов.
+
 package utils
 
 import (
@@ -17,7 +21,7 @@ type CustomClaims struct {
 	jwt.StandardClaims
 }
 
-// GenerateToken создаёт JWT с пользовательским ID и сроком жизни
+// GenerateToken генерирует JWT токен для пользователя.
 func GenerateToken(userID uint) (string, error) {
 	secret := os.Getenv("JWT_SECRET")
 	if secret == "" {

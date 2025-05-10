@@ -1,3 +1,7 @@
+// order_handler.go
+// Этот файл реализует HTTP-слой для работы с заказами.
+// Содержит обработчики маршрутов, связанных с заказами.
+
 package handlers
 
 import (
@@ -16,7 +20,7 @@ type OrderHandler struct {
 	svc *services.OrderService
 }
 
-// NewOrderHandler конструктор.
+// NewOrderHandler конструктор для создания нового OrderHandler.
 func NewOrderHandler(db *gorm.DB) *OrderHandler {
 	return &OrderHandler{svc: services.NewOrderService(db)}
 }

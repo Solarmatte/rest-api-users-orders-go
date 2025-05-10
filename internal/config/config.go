@@ -1,3 +1,7 @@
+// config.go
+// Этот файл содержит функции для работы с конфигурацией приложения.
+// Реализует загрузку переменных окружения и их валидацию.
+
 package config
 
 import (
@@ -19,8 +23,8 @@ type Config struct {
     JWTSecret string
 }
 
-// Load читает .env и системные переменные, собирает структуру Config.
-func Load() (*Config, error) {
+// LoadConfig загружает конфигурацию из переменных окружения.
+func LoadConfig() (*Config, error) {
     // пытаемся загрузить .env из корня проекта
     if err := godotenv.Load(); err != nil {
         log.Println("[config] .env не найден, читаем системные переменные")

@@ -1,4 +1,3 @@
-
 # Kvant Task API
 
 REST API для управления пользователями и их заказами на Go + PostgreSQL.
@@ -85,4 +84,30 @@ Project/
   ```bash
   go test ./...
   ```
+
+# Запуск через Docker Compose
+
+## Использование стандартных данных
+
+1. Убедитесь, что у вас установлен Docker и Docker Compose.
+2. Выполните команду:
+
+```bash
+docker-compose up --build
+```
+
+## Использование пользовательского `.env`
+
+1. Создайте файл `.env` в корне проекта, скопировав содержимое из `.env.example`:
+
+```bash
+cp .env.example .env
+```
+
+2. Отредактируйте `.env`, указав свои данные для базы данных.
+3. Запустите Docker Compose:
+
+```bash
+docker-compose up --build
+```
 
