@@ -173,13 +173,9 @@ CREATE TABLE orders (
 Документация доступна по адресу:  
 [http://localhost:8080/swagger/index.html](http://localhost:8080/swagger/index.html)
 
----
 
-## Контакты
-
-Если возникли вопросы, пишите на: you@example.com
 
 ---
 
-Спасибо за использование проекта!
+###@ Спасибо за использование проекта!
  
