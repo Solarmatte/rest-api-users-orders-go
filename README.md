@@ -4,7 +4,6 @@ REST API для управления пользователями и их зак
 
 ![Go](https://img.shields.io/badge/Go-1.24-blue) ![Gin](https://img.shields.io/badge/Gin-1.10-green) ![GORM](https://img.shields.io/badge/GORM-1.26-orange) ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-15-blue)
 
-
 ---
 
 ## 🚀 Быстрый старт
@@ -13,37 +12,26 @@ REST API для управления пользователями и их зак
    ```bash
    git clone https://github.com/Solarmatte/rest-api-users-orders-go.git
    cd rest-api-users-orders-go
-   ````
+   ```
 
 2. Создайте образец окружения .env:
 
    ```bash
-   # Сервер
-    SERVER_ADDRESS=:8080
-
-    # PostgreSQL
-    POSTGRES_HOST=localhost
-    POSTGRES_PORT=5432
-    POSTGRES_USER=postgres
-    POSTGRES_PASSWORD=your_password
-    POSTGRES_DB=kvant_db
-    POSTGRES_SSLMODE=disable
-
-    # JWT
-    JWT_SECRET=your_jwt_secret
+   cp .env.example .env
    ```
 
-3. Запустите PostgreSQL и приложение через Docker Compose:
-
+3. Запустите приложение с помощью Docker Compose:
    ```bash
-   docker-compose up -d
+   docker-compose up --build
    ```
 
-4. Перейдите в Swagger UI:
+4. Приложение будет доступно по адресу: `http://localhost:8080`
 
-   ```
-   http://localhost:8080/swagger/index.html
-   ```
+---
+
+## 📚 Документация API
+
+Документация доступна по адресу: `http://localhost:8080/swagger/index.html`
 
 ---
 
@@ -70,44 +58,44 @@ Project/
 ├── docker-compose.yml # Docker Compose для Postgres + app  
 ├── Dockerfile         # сборка Docker-образа  
 ├── go.mod             # зависимости и модульный путь  
-└── go.sum             # контрольные суммы зависимостей  
-
-
-
+└── go.sum             # контрольные суммы зависимостей
 ```
+
+---
 
 ## 🧪 Тестирование
 
-* Unit-tests сервисов и репозиториев лежат в `tests/`.
-* Запуск:
-
-  ```bash
-  go test ./...
-  ```
-
-# Запуск через Docker Compose
-
-## Использование стандартных данных
-
-1. Убедитесь, что у вас установлен Docker и Docker Compose.
-2. Выполните команду:
-
+Для запуска тестов выполните:
 ```bash
-docker-compose up --build
+   go test ./...
 ```
 
-## Использование пользовательского `.env`
+---
 
-1. Создайте файл `.env` в корне проекта, скопировав содержимое из `.env.example`:
+## 🛠️ Базовые команды
 
+### Сборка приложения
 ```bash
-cp .env.example .env
+   go build -o main ./cmd
 ```
 
-2. Отредактируйте `.env`, указав свои данные для базы данных.
-3. Запустите Docker Compose:
-
+### Запуск приложения локально
 ```bash
-docker-compose up --build
+   go run ./cmd
+```
+
+### Запуск через Docker Compose
+```bash
+   docker-compose up --build
+```
+
+### Остановка через Docker Compose
+```bash
+   docker-compose down
+```
+
+### Обновление Swagger-документации
+```bash
+   swag init -g cmd/main.go -o docs --parseDependency --parseInternal --parseDepth 3
 ```
 
