@@ -13,13 +13,25 @@ REST API для управления пользователями и их зак
 1. Клонируйте репозиторий:
    ```bash
    git clone https://github.com/Solarmatte/rest-api-users-orders-go.git
-   cd kvant_task
+   cd rest-api-users-orders-go
    ````
 
-2. Скопируйте образец окружения:
+2. Создайте образец окружения .env:
 
    ```bash
-   cp .env.example .env
+   # Сервер
+    SERVER_ADDRESS=:8080
+
+    # PostgreSQL
+    POSTGRES_HOST=localhost
+    POSTGRES_PORT=5432
+    POSTGRES_USER=postgres
+    POSTGRES_PASSWORD=your_password
+    POSTGRES_DB=kvant_db
+    POSTGRES_SSLMODE=disable
+
+    # JWT
+    JWT_SECRET=your_jwt_secret
    ```
 
 3. Запустите PostgreSQL и приложение через Docker Compose:
