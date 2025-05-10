@@ -31,24 +31,29 @@ import (
 )
 
 func main() {
+	// Загрузка конфигурации из файла или переменных окружения
 	cfg, err := config.Load()
 	if err != nil {
 		log.Fatalf("[main] конфигурация: %v", err)
 	}
 
+	// Подключение к базе данных
 	db, err := bootstrap.Database(cfg)
 	if err != nil {
 		log.Fatalf("[main] БД: %v", err)
 	}
 	log.Println("[main] успешно подключились к БД")
 
+	// Создание нового роутера с конфигурацией и подключением к БД
 	r := router.New(db, cfg)
 
+	// Настройка HTTP-сервера
 	srv := &http.Server{
-		Addr:    cfg.Server.Address,
-		Handler: r,
+		Addr:    cfg.Server.Address, // Адрес сервера
+		Handler: r,                  // Роутер для обработки запросов
 	}
 
+	// Запуск сервера в отдельной горутине
 	go func() {
 		log.Printf("[main] сервер запущен на %s", cfg.Server.Address)
 		if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
@@ -56,11 +61,13 @@ func main() {
 		}
 	}()
 
+	// Ожидание сигнала завершения (SIGINT или SIGTERM)
 	quit := make(chan os.Signal, 1)
 	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
 	<-quit
 	log.Println("[main] получен сигнал завершения")
 
+	// Завершение работы сервера с таймаутом
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 	if err := srv.Shutdown(ctx); err != nil {

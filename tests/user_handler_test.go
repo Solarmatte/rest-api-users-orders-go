@@ -195,26 +195,6 @@ func Test_GetUpdateDeleteUser(t *testing.T) {
 	require.Equal(t, http.StatusNoContent, wDel.Code)
 }
 
-// // тест успешного создания пользователя — уже есть
-// func Test_CreateUser_Success(t *testing.T) {
-// 	r := setupUserRouter(t)
-
-// 	body := map[string]interface{}{
-// 		"name":     "Test User",
-// 		"email":    "test@example.com",
-// 		"age":      25,
-// 		"password": "password123",
-// 	}
-// 	jsonBody, _ := json.Marshal(body)
-
-// 	req, _ := http.NewRequest("POST", "/users", bytes.NewBuffer(jsonBody))
-// 	req.Header.Set("Content-Type", "application/json")
-// 	w := httptest.NewRecorder()
-// 	r.ServeHTTP(w, req)
-
-// 	require.Equal(t, http.StatusCreated, w.Code)
-// }
-
 // тест на 422 Unprocessable Entity при неполном JSON POST /users
 func Test_CreateUser_BadRequest(t *testing.T) {
 	r := setupUserRouter(t)

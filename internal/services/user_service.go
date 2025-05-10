@@ -20,6 +20,8 @@ var (
 )
 
 // RegisterRequest данные для создания пользователя
+// Добавлено описание для Swagger
+// @Description Данные для создания нового пользователя
 type RegisterRequest struct {
 	Name     string `json:"name" binding:"required,min=2"`
 	Email    string `json:"email" binding:"required,email"`

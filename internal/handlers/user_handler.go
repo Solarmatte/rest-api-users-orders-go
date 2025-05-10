@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"fmt"
 	"net/http"
 	"strconv"
 
@@ -31,6 +32,7 @@ func NewUserHandler(db *gorm.DB, jwtSecret string) *UserHandler {
 // @Failure 400 {object} handlers.ErrorResponse
 // @Failure 422 {object} handlers.ValidationErrorResponse
 // @Failure 500 {object} handlers.ErrorResponse
+// @Success 400 {object} handlers.ErrorResponse "Пользователь с таким email уже существует"
 // @Router /users [post]
 func (h *UserHandler) CreateUser(c *gin.Context) {
 	var req services.RegisterRequest
@@ -41,7 +43,8 @@ func (h *UserHandler) CreateUser(c *gin.Context) {
 	user, err := h.svc.Create(c.Request.Context(), &req)
 	if err != nil {
 		if err == services.ErrUserExists {
-			RespondError(c, http.StatusBadRequest, err)
+			RespondError(c, http.StatusBadRequest, fmt.Errorf("пользователь с таким email уже существует"))
+			return
 		} else {
 			RespondError(c, http.StatusInternalServerError, err)
 		}
@@ -143,8 +146,8 @@ func (h *UserHandler) List(c *gin.Context) {
 // @Router       /users/{id} [get]
 func (h *UserHandler) GetByID(c *gin.Context) {
 	id, err := strconv.Atoi(c.Param("id"))
-	if err != nil {
-		RespondError(c, http.StatusBadRequest, err)
+	if err != nil || id <= 0 {
+		RespondError(c, http.StatusBadRequest, fmt.Errorf("ID должен быть положительным целым числом"))
 		return
 	}
 	u, err := h.svc.GetByID(c.Request.Context(), uint(id))
@@ -176,8 +179,8 @@ func (h *UserHandler) GetByID(c *gin.Context) {
 // @Router       /users/{id} [put]
 func (h *UserHandler) Update(c *gin.Context) {
 	id, err := strconv.Atoi(c.Param("id"))
-	if err != nil {
-		RespondError(c, http.StatusBadRequest, err)
+	if err != nil || id <= 0 {
+		RespondError(c, http.StatusBadRequest, fmt.Errorf("ID должен быть положительным целым числом"))
 		return
 	}
 	var req services.UpdateRequest
@@ -212,10 +215,17 @@ func (h *UserHandler) Update(c *gin.Context) {
 // @Router       /users/{id} [delete]
 func (h *UserHandler) Delete(c *gin.Context) {
 	id, err := strconv.Atoi(c.Param("id"))
-	if err != nil {
-		RespondError(c, http.StatusBadRequest, err)
+	if err != nil || id <= 0 {
+		RespondError(c, http.StatusBadRequest, fmt.Errorf("ID должен быть положительным целым числом"))
 		return
 	}
+
+	userID, ok := c.Get("user_id")
+	if ok && uint(id) == userID.(uint) {
+		// Автоматический выход из авторизации
+		c.Header("Authorization", "")
+	}
+
 	if err := h.svc.Delete(c.Request.Context(), uint(id)); err != nil {
 		status := http.StatusInternalServerError
 		if err == services.ErrNotFound {
