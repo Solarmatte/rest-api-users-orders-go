@@ -38,12 +38,22 @@ func RespondError(c *gin.Context, status int, err error) {
 			}
 			msgs[i] = msg
 		}
-		c.JSON(http.StatusUnprocessableEntity, gin.H{"errors": msgs})
+		// Возвращаем 400 вместо 422
+		c.JSON(http.StatusBadRequest, gin.H{"errors": msgs})
 		return
 	}
 
 	// Обычная ошибка
 	c.JSON(status, TokenErrorResponse{Error: err.Error()})
+}
+
+// HandleError обрабатывает ошибки и возвращает соответствующий HTTP статус и сообщение.
+func HandleError(c *gin.Context, err error, notFoundErr error, notFoundMsg string) {
+	if errors.Is(err, notFoundErr) {
+		RespondError(c, http.StatusNotFound, fmt.Errorf("%s", notFoundMsg))
+		return
+	}
+	RespondError(c, http.StatusInternalServerError, fmt.Errorf("внутренняя ошибка сервера: %w", err))
 }
 
 // ErrorResponse — стандартное сообщение об ошибке.

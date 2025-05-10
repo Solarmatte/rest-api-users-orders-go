@@ -46,3 +46,7 @@ func (r *OrderRepo) ListByUser(ctx context.Context, userID uint) ([]Order, error
 		Find(&orders).Error
 	return orders, err
 }
+
+func (r *OrderRepo) GetDB() *gorm.DB {
+	return r.db
+}

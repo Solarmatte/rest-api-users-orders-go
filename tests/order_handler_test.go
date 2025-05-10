@@ -139,7 +139,7 @@ func setupOrderRouterWithAuth(t *testing.T) (*gin.Engine, uint, string) {
 	return r, user.ID, token
 }
 
-// тесты на 422 Unprocessable Entity при неполных или некорректных данных
+// Изменение ожидаемых статусов ошибок с 422 на 400 в тестах
 func Test_CreateOrder_BadRequest(t *testing.T) {
 	r, userID, token := setupOrderRouterWithAuth(t)
 
@@ -148,11 +148,11 @@ func Test_CreateOrder_BadRequest(t *testing.T) {
 		body       map[string]interface{}
 		wantStatus int
 	}{
-		{"Missing product", map[string]interface{}{"quantity": 1, "price": 10.0}, http.StatusUnprocessableEntity},
-		{"Missing quantity", map[string]interface{}{"product": "Item", "price": 10.0}, http.StatusUnprocessableEntity},
-		{"Missing price", map[string]interface{}{"product": "Item", "quantity": 1}, http.StatusUnprocessableEntity},
-		{"Negative quantity", map[string]interface{}{"product": "Item", "quantity": -1, "price": 10.0}, http.StatusUnprocessableEntity},
-		{"Negative price", map[string]interface{}{"product": "Item", "quantity": 1, "price": -10.0}, http.StatusUnprocessableEntity},
+		{"Missing product", map[string]interface{}{"quantity": 1, "price": 10.0}, http.StatusBadRequest},
+		{"Missing quantity", map[string]interface{}{"product": "Item", "price": 10.0}, http.StatusBadRequest},
+		{"Missing price", map[string]interface{}{"product": "Item", "quantity": 1}, http.StatusBadRequest},
+		{"Negative quantity", map[string]interface{}{"product": "Item", "quantity": -1, "price": 10.0}, http.StatusBadRequest},
+		{"Negative price", map[string]interface{}{"product": "Item", "quantity": 1, "price": -10.0}, http.StatusBadRequest},
 	}
 
 	for _, tc := range testCases {
@@ -211,4 +211,35 @@ func Test_ListOrders_Unauthorized(t *testing.T) {
 	w2 := httptest.NewRecorder()
 	r.ServeHTTP(w2, req2)
 	require.Equal(t, http.StatusUnauthorized, w2.Code)
+}
+
+// Добавление тестов для недействительных JWT-токенов
+func Test_OrderEndpoints_InvalidJWT(t *testing.T) {
+	r, userID, _ := setupOrderRouterWithAuth(t)
+
+	paths := []struct {
+		method string
+		route  string
+		body   map[string]interface{}
+	}{
+		{"POST", "/users/" + strconv.Itoa(int(userID)) + "/orders", map[string]interface{}{"product": "Laptop", "quantity": 1, "price": 1200.50}},
+		{"GET", "/users/" + strconv.Itoa(int(userID)) + "/orders", nil},
+	}
+
+	for _, p := range paths {
+		t.Run(p.method+" "+p.route+" with invalid token", func(t *testing.T) {
+			var req *http.Request
+			if p.body != nil {
+				b, _ := json.Marshal(p.body)
+				req, _ = http.NewRequest(p.method, p.route, bytes.NewBuffer(b))
+				req.Header.Set("Content-Type", "application/json")
+			} else {
+				req, _ = http.NewRequest(p.method, p.route, nil)
+			}
+			req.Header.Set("Authorization", "Bearer invalidtoken")
+			w := httptest.NewRecorder()
+			r.ServeHTTP(w, req)
+			require.Equal(t, http.StatusUnauthorized, w.Code)
+		})
+	}
 }

@@ -77,6 +77,15 @@ func NewUserService(db *gorm.DB, jwtSecret string) *UserService {
 	}
 }
 
+func toUserResponse(u *models.User) *UserResponse {
+	return &UserResponse{
+		ID:    u.ID,
+		Name:  u.Name,
+		Email: u.Email,
+		Age:   u.Age,
+	}
+}
+
 // Create создаёт пользователя и возвращает его данные
 func (s *UserService) Create(ctx context.Context, req *RegisterRequest) (*UserResponse, error) {
 	// проверяем, нет ли уже такого email
@@ -101,12 +110,7 @@ func (s *UserService) Create(ctx context.Context, req *RegisterRequest) (*UserRe
 		return nil, err
 	}
 
-	return &UserResponse{
-		ID:    u.ID,
-		Name:  u.Name,
-		Email: u.Email,
-		Age:   u.Age,
-	}, nil
+	return toUserResponse(u), nil
 }
 
 // Login проверяет учётные данные и возвращает JWT
@@ -139,7 +143,7 @@ func (s *UserService) List(ctx context.Context, f *UserFilter) ([]UserResponse, 
 	}
 	out := make([]UserResponse, len(users))
 	for i, u := range users {
-		out[i] = UserResponse{ID: u.ID, Name: u.Name, Email: u.Email, Age: u.Age}
+		out[i] = *toUserResponse(&u)
 	}
 	return out, nil
 }
@@ -155,7 +159,7 @@ func (s *UserService) GetByID(ctx context.Context, id uint) (*UserResponse, erro
 	if err != nil {
 		return nil, err
 	}
-	return &UserResponse{ID: u.ID, Name: u.Name, Email: u.Email, Age: u.Age}, nil
+	return toUserResponse(u), nil
 }
 
 // Update обновляет пользователя.
@@ -176,7 +180,7 @@ func (s *UserService) Update(ctx context.Context, id uint, req *UpdateRequest) (
 	if err := s.repo.Update(ctx, u); err != nil {
 		return nil, err
 	}
-	return &UserResponse{ID: u.ID, Name: u.Name, Email: u.Email, Age: u.Age}, nil
+	return toUserResponse(u), nil
 }
 
 // Delete удаляет пользователя.

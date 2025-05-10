@@ -8,6 +8,19 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+var invalidatedTokens = make(map[string]struct{})
+
+// InvalidateToken добавляет токен в список аннулированных.
+func InvalidateToken(token string) {
+	invalidatedTokens[token] = struct{}{}
+}
+
+// IsTokenInvalidated проверяет, аннулирован ли токен.
+func IsTokenInvalidated(token string) bool {
+	_, exists := invalidatedTokens[token]
+	return exists
+}
+
 // Auth проверяет JWT и кладёт user_id в контекст.
 func Auth(secret string) gin.HandlerFunc {
 	return func(c *gin.Context) {

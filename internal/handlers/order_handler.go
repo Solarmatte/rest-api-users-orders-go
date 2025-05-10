@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"fmt"
 	"net/http"
 	"strconv"
 
@@ -28,27 +29,31 @@ func NewOrderHandler(db *gorm.DB) *OrderHandler {
 // @Produce      json
 // @Param        id     path      int                     true  "ID пользователя"
 // @Param        input  body      services.CreateOrderRequest true "Данные заказа"
-// @Success      201    {object} services.OrderResponse
-// @Failure      400    {object} handlers.ErrorResponse
-// @Failure      401    {object} handlers.ErrorResponse
-// @Failure      422    {object} handlers.ValidationErrorResponse
-// @Failure      500    {object} handlers.ErrorResponse
+// @Success      201    {object} services.OrderResponse "Заказ успешно создан"
+// @Failure      400    {object} handlers.ErrorResponse "Некорректный ID пользователя"
+// @Failure      422    {object} handlers.ValidationErrorResponse "Ошибка валидации данных заказа"
+// @Failure      500    {object} handlers.ErrorResponse "Внутренняя ошибка сервера"
 // @Security     BearerAuth
 // @Router       /users/{id}/orders [post]
 func (h *OrderHandler) CreateForUser(c *gin.Context) {
 	uid, err := strconv.Atoi(c.Param("id"))
-	if err != nil {
-		RespondError(c, http.StatusBadRequest, err)
+	if err != nil || uid <= 0 {
+		HandleError(c, fmt.Errorf("некорректный ID"), nil, "ID должен быть положительным целым числом")
+		return
+	}
+	userSvc := services.NewUserService(h.svc.GetDB(), "")
+	if _, err := userSvc.GetByID(c.Request.Context(), uint(uid)); err != nil {
+		HandleError(c, err, gorm.ErrRecordNotFound, "пользователь не найден")
 		return
 	}
 	var req services.CreateOrderRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		RespondError(c, http.StatusUnprocessableEntity, err)
+		HandleError(c, err, nil, "некорректные данные заказа")
 		return
 	}
 	o, err := h.svc.Create(c.Request.Context(), uint(uid), &req)
 	if err != nil {
-		RespondError(c, http.StatusInternalServerError, err)
+		HandleError(c, err, nil, "ошибка сервера при создании заказа")
 		return
 	}
 	c.JSON(http.StatusCreated, o)
@@ -60,21 +65,20 @@ func (h *OrderHandler) CreateForUser(c *gin.Context) {
 // @Tags         Заказы
 // @Produce      json
 // @Param        id   path      int  true  "ID пользователя"
-// @Success      200  {array}   services.OrderResponse
-// @Failure      400  {object}  handlers.ErrorResponse
-// @Failure      401  {object}  handlers.ErrorResponse
-// @Failure      500  {object}  handlers.ErrorResponse
+// @Success      200  {array}   services.OrderResponse "Список заказов"
+// @Failure      400  {object}  handlers.ErrorResponse "Некорректный ID пользователя"
+// @Failure      500  {object}  handlers.ErrorResponse "Внутренняя ошибка сервера"
 // @Security     BearerAuth
 // @Router       /users/{id}/orders [get]
 func (h *OrderHandler) ListByUser(c *gin.Context) {
 	id, err := strconv.Atoi(c.Param("id"))
-	if err != nil {
-		RespondError(c, http.StatusBadRequest, err)
+	if err != nil || id <= 0 {
+		HandleError(c, fmt.Errorf("некорректный ID"), nil, "ID должен быть положительным целым числом")
 		return
 	}
 	list, err := h.svc.ListByUser(c.Request.Context(), uint(id))
 	if err != nil {
-		RespondError(c, http.StatusInternalServerError, err)
+		HandleError(c, err, nil, "ошибка сервера при получении заказов")
 		return
 	}
 	c.JSON(http.StatusOK, list)

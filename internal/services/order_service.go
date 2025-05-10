@@ -37,6 +37,17 @@ func NewOrderService(db *gorm.DB) *OrderService {
 	return &OrderService{repo: repositories.NewOrderRepo(db)}
 }
 
+func toOrderResponse(o *repositories.Order) *OrderResponse {
+	return &OrderResponse{
+		ID:        o.ID,
+		UserID:    o.UserID,
+		Product:   o.Product,
+		Quantity:  o.Quantity,
+		Price:     o.Price,
+		CreatedAt: o.CreatedAt,
+	}
+}
+
 // Create создаёт новый заказ и возвращает его DTO.
 func (s *OrderService) Create(ctx context.Context, userID uint, req *CreateOrderRequest) (*OrderResponse, error) {
 	o := &repositories.Order{
@@ -48,14 +59,7 @@ func (s *OrderService) Create(ctx context.Context, userID uint, req *CreateOrder
 	if err := s.repo.Create(ctx, o); err != nil {
 		return nil, err
 	}
-	return &OrderResponse{
-		ID:        o.ID,
-		UserID:    o.UserID,
-		Product:   o.Product,
-		Quantity:  o.Quantity,
-		Price:     o.Price,
-		CreatedAt: o.CreatedAt,
-	}, nil
+	return toOrderResponse(o), nil
 }
 
 // ListByUser возвращает список заказов пользователя.
@@ -66,14 +70,11 @@ func (s *OrderService) ListByUser(ctx context.Context, userID uint) ([]OrderResp
 	}
 	out := make([]OrderResponse, len(list))
 	for i, o := range list {
-		out[i] = OrderResponse{
-			ID:        o.ID,
-			UserID:    o.UserID,
-			Product:   o.Product,
-			Quantity:  o.Quantity,
-			Price:     o.Price,
-			CreatedAt: o.CreatedAt,
-		}
+		out[i] = *toOrderResponse(&o)
 	}
 	return out, nil
+}
+
+func (s *OrderService) GetDB() *gorm.DB {
+	return s.repo.GetDB()
 }

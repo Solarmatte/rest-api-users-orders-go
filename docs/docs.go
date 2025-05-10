@@ -44,25 +44,25 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK",
+                        "description": "Успешная аутентификация",
                         "schema": {
                             "$ref": "#/definitions/kvant_task_internal_services.TokenResponse"
                         }
                     },
                     "400": {
-                        "description": "Bad Request",
+                        "description": "Некорректные данные для входа",
                         "schema": {
                             "$ref": "#/definitions/internal_handlers.ErrorResponse"
                         }
                     },
                     "401": {
-                        "description": "Unauthorized",
+                        "description": "Неверный email или пароль",
                         "schema": {
                             "$ref": "#/definitions/internal_handlers.ErrorResponse"
                         }
                     },
                     "422": {
-                        "description": "Unprocessable Entity",
+                        "description": "Ошибка валидации данных",
                         "schema": {
                             "$ref": "#/definitions/internal_handlers.ValidationErrorResponse"
                         }
@@ -115,19 +115,19 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK",
+                        "description": "Список пользователей",
                         "schema": {
                             "$ref": "#/definitions/internal_handlers.UserListResponse"
                         }
                     },
                     "401": {
-                        "description": "Unauthorized",
+                        "description": "Неавторизованный доступ",
                         "schema": {
                             "$ref": "#/definitions/internal_handlers.ErrorResponse"
                         }
                     },
                     "500": {
-                        "description": "Internal Server Error",
+                        "description": "Внутренняя ошибка сервера",
                         "schema": {
                             "$ref": "#/definitions/internal_handlers.ErrorResponse"
                         }
@@ -159,25 +159,25 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "201": {
-                        "description": "Created",
+                        "description": "Пользователь успешно создан",
                         "schema": {
                             "$ref": "#/definitions/kvant_task_internal_services.UserResponse"
                         }
                     },
                     "400": {
-                        "description": "Bad Request",
+                        "description": "Пользователь с таким email уже существует",
                         "schema": {
                             "$ref": "#/definitions/internal_handlers.ErrorResponse"
                         }
                     },
                     "422": {
-                        "description": "Unprocessable Entity",
+                        "description": "Ошибка валидации данных",
                         "schema": {
                             "$ref": "#/definitions/internal_handlers.ValidationErrorResponse"
                         }
                     },
                     "500": {
-                        "description": "Internal Server Error",
+                        "description": "Внутренняя ошибка сервера",
                         "schema": {
                             "$ref": "#/definitions/internal_handlers.ErrorResponse"
                         }
@@ -393,7 +393,7 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK",
+                        "description": "Список заказов",
                         "schema": {
                             "type": "array",
                             "items": {
@@ -402,19 +402,13 @@ const docTemplate = `{
                         }
                     },
                     "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/internal_handlers.ErrorResponse"
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized",
+                        "description": "Некорректный ID пользователя",
                         "schema": {
                             "$ref": "#/definitions/internal_handlers.ErrorResponse"
                         }
                     },
                     "500": {
-                        "description": "Internal Server Error",
+                        "description": "Внутренняя ошибка сервера",
                         "schema": {
                             "$ref": "#/definitions/internal_handlers.ErrorResponse"
                         }
@@ -458,31 +452,25 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "201": {
-                        "description": "Created",
+                        "description": "Заказ успешно создан",
                         "schema": {
                             "$ref": "#/definitions/kvant_task_internal_services.OrderResponse"
                         }
                     },
                     "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/internal_handlers.ErrorResponse"
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized",
+                        "description": "Некорректный ID пользователя",
                         "schema": {
                             "$ref": "#/definitions/internal_handlers.ErrorResponse"
                         }
                     },
                     "422": {
-                        "description": "Unprocessable Entity",
+                        "description": "Ошибка валидации данных заказа",
                         "schema": {
                             "$ref": "#/definitions/internal_handlers.ValidationErrorResponse"
                         }
                     },
                     "500": {
-                        "description": "Internal Server Error",
+                        "description": "Внутренняя ошибка сервера",
                         "schema": {
                             "$ref": "#/definitions/internal_handlers.ErrorResponse"
                         }
@@ -589,6 +577,7 @@ const docTemplate = `{
             }
         },
         "kvant_task_internal_services.RegisterRequest": {
+            "description": "Данные для создания нового пользователя",
             "type": "object",
             "required": [
                 "age",

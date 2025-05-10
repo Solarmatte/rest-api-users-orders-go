@@ -204,13 +204,13 @@ func Test_CreateUser_BadRequest(t *testing.T) {
 		body       map[string]interface{}
 		wantStatus int
 	}{
-		{"Missing email", map[string]interface{}{"name": "User 1", "password": "pass1", "age": 20}, http.StatusUnprocessableEntity},
-		{"Missing password", map[string]interface{}{"name": "User 2", "email": "u2@example.com", "age": 30}, http.StatusUnprocessableEntity},
-		{"Missing name", map[string]interface{}{"email": "u3@example.com", "password": "pass3", "age": 25}, http.StatusUnprocessableEntity},
-		{"Missing age", map[string]interface{}{"email": "u4@example.com", "password": "pass4", "name": "User 4"}, http.StatusUnprocessableEntity},
-		{"Invalid email format", map[string]interface{}{"name": "User 5", "email": "invalid", "password": "pass5", "age": 25}, http.StatusUnprocessableEntity},
-		{"Age zero", map[string]interface{}{"name": "User 6", "email": "u6@example.com", "password": "pass6", "age": 0}, http.StatusUnprocessableEntity},
-		{"Password too short", map[string]interface{}{"name": "User 7", "email": "u7@example.com", "password": "123", "age": 30}, http.StatusUnprocessableEntity},
+		{"Missing email", map[string]interface{}{"name": "User 1", "password": "pass1", "age": 20}, http.StatusBadRequest},
+		{"Missing password", map[string]interface{}{"name": "User 2", "email": "u2@example.com", "age": 30}, http.StatusBadRequest},
+		{"Missing name", map[string]interface{}{"email": "u3@example.com", "password": "pass3", "age": 25}, http.StatusBadRequest},
+		{"Missing age", map[string]interface{}{"email": "u4@example.com", "password": "pass4", "name": "User 4"}, http.StatusBadRequest},
+		{"Invalid email format", map[string]interface{}{"name": "User 5", "email": "invalid", "password": "pass5", "age": 25}, http.StatusBadRequest},
+		{"Age zero", map[string]interface{}{"name": "User 6", "email": "u6@example.com", "password": "pass6", "age": 0}, http.StatusBadRequest},
+		{"Password too short", map[string]interface{}{"name": "User 7", "email": "u7@example.com", "password": "123", "age": 30}, http.StatusBadRequest},
 	}
 
 	for _, tc := range testCases {
@@ -282,4 +282,122 @@ func Test_Endpoints_Unauthorized(t *testing.T) {
 			require.Equal(t, http.StatusUnauthorized, w.Code)
 		})
 	}
+}
+
+// Добавление тестов для недействительных JWT-токенов
+func Test_UserEndpoints_InvalidJWT(t *testing.T) {
+	r := setupUserRouter(t)
+
+	paths := []struct {
+		method string
+		route  string
+		body   map[string]interface{}
+	}{
+		{"GET", "/users", nil},
+		{"GET", "/users/1", nil},
+		{"PUT", "/users/1", map[string]interface{}{"name": "Updated"}},
+		{"DELETE", "/users/1", nil},
+	}
+
+	for _, p := range paths {
+		t.Run(p.method+" "+p.route+" with invalid token", func(t *testing.T) {
+			var req *http.Request
+			if p.body != nil {
+				b, _ := json.Marshal(p.body)
+				req, _ = http.NewRequest(p.method, p.route, bytes.NewBuffer(b))
+				req.Header.Set("Content-Type", "application/json")
+			} else {
+				req, _ = http.NewRequest(p.method, p.route, nil)
+			}
+			req.Header.Set("Authorization", "Bearer invalidtoken")
+			w := httptest.NewRecorder()
+			r.ServeHTTP(w, req)
+			require.Equal(t, http.StatusUnauthorized, w.Code)
+		})
+	}
+}
+
+// Тесты для проверки отсутствия токена
+func Test_UserEndpoints_NoToken(t *testing.T) {
+	r := setupUserRouter(t)
+
+	paths := []struct {
+		method string
+		route  string
+		body   map[string]interface{}
+	}{
+		{"GET", "/users", nil},
+		{"GET", "/users/1", nil},
+		{"PUT", "/users/1", map[string]interface{}{"name": "Updated"}},
+		{"DELETE", "/users/1", nil},
+	}
+
+	for _, p := range paths {
+		t.Run(p.method+" "+p.route+" without token", func(t *testing.T) {
+			var req *http.Request
+			if p.body != nil {
+				b, _ := json.Marshal(p.body)
+				req, _ = http.NewRequest(p.method, p.route, bytes.NewBuffer(b))
+				req.Header.Set("Content-Type", "application/json")
+			} else {
+				req, _ = http.NewRequest(p.method, p.route, nil)
+			}
+			w := httptest.NewRecorder()
+			r.ServeHTTP(w, req)
+			require.Equal(t, http.StatusUnauthorized, w.Code)
+		})
+	}
+}
+
+// Тесты для проверки некорректных данных при обновлении пользователя
+func Test_UpdateUser_InvalidData(t *testing.T) {
+	r := setupUserRouter(t)
+	db := getTestDB(t)
+	cleanUsers(t, db)
+
+	svc := services.NewUserService(db, "test-secret")
+	created, err := svc.Create(context.Background(), &services.RegisterRequest{
+		Name:     "Test User",
+		Email:    "test@example.com",
+		Password: "password123",
+		Age:      25,
+	})
+	require.NoError(t, err)
+	token := generateTestToken(created.ID, "test-secret")
+
+	cases := []struct {
+		name       string
+		body       map[string]interface{}
+		wantStatus int
+	}{
+		{"Empty name", map[string]interface{}{"name": ""}, http.StatusBadRequest},
+		{"Invalid email", map[string]interface{}{"email": "invalid"}, http.StatusBadRequest},
+		{"Negative age", map[string]interface{}{"age": -1}, http.StatusBadRequest},
+	}
+
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			body, _ := json.Marshal(tc.body)
+			req, _ := http.NewRequest("PUT", "/users/"+strconv.Itoa(int(created.ID)), bytes.NewBuffer(body))
+			req.Header.Set("Content-Type", "application/json")
+			req.Header.Set("Authorization", "Bearer "+token)
+			w := httptest.NewRecorder()
+			r.ServeHTTP(w, req)
+			require.Equal(t, tc.wantStatus, w.Code)
+		})
+	}
+}
+
+// Тесты для проверки удаления несуществующего пользователя
+func Test_DeleteUser_NotFound(t *testing.T) {
+	r := setupUserRouter(t)
+	token := generateTestToken(9999, "test-secret") // Несуществующий ID
+
+	req, _ := http.NewRequest("DELETE", "/users/9999", nil)
+	req.Header.Set("Authorization", "Bearer "+token)
+	w := httptest.NewRecorder()
+	r.ServeHTTP(w, req)
+
+	require.Equal(t, http.StatusNotFound, w.Code)
+	require.Contains(t, w.Body.String(), "пользователь не найден")
 }
