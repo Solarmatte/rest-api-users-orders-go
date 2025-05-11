@@ -105,23 +105,32 @@ func (h *UserHandler) List(c *gin.Context) {
 		HandleError(c, fmt.Errorf("некорректный размер страницы"), nil, "размер страницы должен быть положительным целым числом")
 		return
 	}
-	minAge := c.DefaultQuery("min_age", "")
-	if minAge != "" {
-		if age, err := strconv.Atoi(minAge); err != nil || age < 0 {
+	minAgeStr := c.DefaultQuery("min_age", "")
+	maxAgeStr := c.DefaultQuery("max_age", "")
+	if minAgeStr != "" {
+		minAge, err := strconv.Atoi(minAgeStr)
+		if err != nil || minAge < 0 {
 			HandleError(c, fmt.Errorf("некорректный минимальный возраст"), nil, "минимальный возраст должен быть неотрицательным целым числом")
 			return
 		}
+		if maxAgeStr != "" {
+			maxAge, err := strconv.Atoi(maxAgeStr)
+			if err == nil && maxAge < minAge {
+				HandleError(c, fmt.Errorf("максимальный возраст меньше минимального"), nil, "максимальный возраст не может быть меньше минимального")
+				return
+			}
+		}
 	}
-	maxAge := c.DefaultQuery("max_age", "")
-	if maxAge != "" {
-		if age, err := strconv.Atoi(maxAge); err != nil || age < 0 {
+	if maxAgeStr != "" {
+		maxAge, err := strconv.Atoi(maxAgeStr)
+		if err != nil || maxAge < 0 {
 			HandleError(c, fmt.Errorf("некорректный максимальный возраст"), nil, "максимальный возраст должен быть неотрицательным целым числом")
 			return
 		}
 	}
 	filters := services.UserFilter{
-		MinAge: c.Query("min_age"),
-		MaxAge: c.Query("max_age"),
+		MinAge: minAgeStr,
+		MaxAge: maxAgeStr,
 		Page:   page,
 		Limit:  limit,
 	}
