@@ -1,97 +1,94 @@
-# Kvant Task API
+# REST API GOLANG
 
-REST API для управления пользователями и их заказами на Go + PostgreSQL.
+REST API для управления пользователями и заказами на Go + PostgreSQL.
 
-![Go](https://img.shields.io/badge/Go-1.24-blue) ![Gin](https://img.shields.io/badge/Gin-1.10-green) ![GORM](https://img.shields.io/badge/GORM-1.26-orange) ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-15-blue)
+[![Go](https://img.shields.io/badge/Go-1.24-blue)](https://go.dev/) [![Gin](https://img.shields.io/badge/Gin-1.10-green)](https://gin-gonic.com/) [![GORM](https://img.shields.io/badge/GORM-1.26-orange)](https://gorm.io/) [![PostgreSQL](https://img.shields.io/badge/PostgreSQL-15-blue)](https://www.postgresql.org/)
 
 ---
 
 ## 🚀 Быстрый старт
 
-1. Клонируйте репозиторий или скачайте его любым удобным способом
-
-2. Создайте образец окружения .env:
-
+1. Клонируйте репозиторий:
+   ```bash
+   git clone https://github.com/Solarmatte/rest-api-users-orders-go.git
+   cd rest-api-users-orders-go-main
+   ```
+2. Скопируйте переменные окружения:
    ```bash
    cp .env.example .env
    ```
-
-3. Запустите приложение с помощью Docker Compose:
+3. Запустите приложение:
    ```bash
    docker-compose up --build
    ```
-
-4. Приложение будет доступно по адресу: `http://localhost:8080`
+4. API будет доступен на [http://localhost:8080](http://localhost:8080)
 
 ---
 
 ## 📚 Документация API
 
-Документация доступна по адресу: `http://localhost:8080/swagger/index.html`
+Swagger: [http://localhost:8080/swagger/index.html](http://localhost:8080/swagger/index.html)
 
 ---
 
 ## 🏗️ Структура проекта
 
 ```
-Project/
-├── cmd/               # точка входа приложения (main.go)
-├── docs/              # Swagger-документация (авто-сгенерированные файлы)  
-├── internal/          # основная бизнес-логика и HTTP-слой
-│   ├── config/        # загрузка и валидация .env / переменных окружения
-│   ├── bootstrap/     # инициализация БД и выполнение миграций
-│   ├── handlers/      # HTTP-контроллеры (Gin-эндпоинты)
-│   ├── middleware/    # JWT-авторизация, логирование, Recovery
-│   ├── models/        # GORM-модели (таблицы users, orders)
-│   ├── repositories/  # CRUD-репозитории для работы с БД
-│   ├── router/        # настройка маршрутизации Gin и Swagger-UI
-│   ├── services/      # бизнес-логика (регистрация, заказы, JWT)
-│   └── utils/         # утилиты (JWT-токены и пр.)
-├── migrations/        # SQL-скрипты создания таблиц  
-├── tests/             # unit & integration тесты  
-├── .env               # переменные окружения  
-├── .gitignore         # игнорируемые файлы  
-├── docker-compose.yml # Docker Compose для Postgres + app  
-├── Dockerfile         # сборка Docker-образа  
-├── go.mod             # зависимости и модульный путь  
-└── go.sum             # контрольные суммы зависимостей
+├── cmd/               # main.go — точка входа
+├── docs/              # Swagger (авто-сгенерировано)
+├── internal/          # бизнес-логика и HTTP-слой
+│   ├── config/        # конфиг и .env
+│   ├── bootstrap/     # инициализация БД, миграции
+│   ├── handlers/      # HTTP-контроллеры (Gin)
+│   ├── middleware/    # JWT, логирование, Recovery
+│   ├── models/        # GORM-модели (users, orders)
+│   ├── repositories/  # CRUD-репозитории
+│   ├── router/        # маршрутизация и Swagger
+│   ├── services/      # бизнес-логика
+│   └── utils/         # утилиты (JWT и др.)
+├── migrations/        # SQL-скрипты
+├── tests/             # unit & integration тесты
+├── .env               # переменные окружения
+├── docker-compose.yml # Docker Compose (Postgres + app)
+├── Dockerfile         # Docker-образ
+├── go.mod / go.sum    # зависимости
+└── README.md
 ```
 
 ---
 
-## 🧪 Тестирование
+## ⚙️ Переменные окружения
 
-Для запуска тестов выполните:
-```bash
-   go test ./...
-```
+Пример в `.env.example`. Основные:
+
+| Переменная         | Описание                |
+|--------------------|------------------------|
+| DB_HOST            | Хост PostgreSQL        |
+| DB_PORT            | Порт PostgreSQL        |
+| DB_USER            | Пользователь БД        |
+| DB_PASSWORD        | Пароль БД              |
+| DB_NAME            | Имя БД                 |
+| JWT_SECRET         | Секрет для JWT         |
+| APP_PORT           | Порт приложения        |
 
 ---
 
 ## 🛠️ Базовые команды
 
-### Сборка приложения
-```bash
-   go build -o main ./cmd
-```
+| Операция                | Команда                                  |
+|-------------------------|------------------------------------------|
+| Сборка                  | `go build -o main ./cmd`                 |
+| Локальный запуск        | `go run ./cmd`                           |
+| Тесты                   | `go test ./...`                          |
+| Docker Compose (run)    | `docker-compose up --build`              |
+| Docker Compose (stop)   | `docker-compose down`                    |
+| Swagger обновить        | `swag init -g cmd/main.go -o docs ...`   |
 
-### Запуск приложения локально
-```bash
-   go run ./cmd
-```
+---
 
-### Запуск через Docker Compose
-```bash
-   docker-compose up --build
-```
-
-### Остановка через Docker Compose
-```bash
-   docker-compose down
-```
-
-### Обновление Swagger-документации
-```bash
-   swag init -g cmd/main.go -o docs --parseDependency --parseInternal --parseDepth 3
-```
+## 📎 Ссылки
+- [Swagger UI](http://localhost:8080/swagger/index.html)
+- [Документация Gin](https://gin-gonic.com/docs/)
+- [Документация GORM](https://gorm.io/docs/)
+- [PostgreSQL](https://www.postgresql.org/)
 
