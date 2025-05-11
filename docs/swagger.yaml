@@ -115,7 +115,6 @@ info:
     name: Junior Golang Developer
   description: REST API на Go + PostgreSQL с авторизацией, Swagger и фильтрацией
   title: API для управления пользователями и заказами
-  version: "1.0"
 paths:
   /auth/login:
     post:

@@ -24,18 +24,11 @@ func RespondError(c *gin.Context, status int, err error) {
 
 	log.Printf("RespondError: status=%d, error=%s", status, err.Error())
 
-	// Check for custom error messages
-	if status == http.StatusBadRequest {
-		c.JSON(status, ErrorResponse{Error: err.Error()})
-		return
-	}
-
 	// Обработка ошибок валидации from Gin (validator.ValidationErrors)
 	var ve validator.ValidationErrors
 	if errors.As(err, &ve) {
 		msgs := make([]string, len(ve))
 		for i, fe := range ve {
-			// fe.Field() — имя поля, fe.ActualTag() — правило валидации, fe.Param() — параметр (если есть)
 			var msg string
 			switch fe.ActualTag() {
 			case "required":
@@ -51,13 +44,12 @@ func RespondError(c *gin.Context, status int, err error) {
 			}
 			msgs[i] = msg
 		}
-		// Возвращаем 400 вместо 422
-		c.JSON(http.StatusBadRequest, gin.H{"errors": msgs})
+		c.JSON(http.StatusBadRequest, ValidationErrorResponse{Errors: msgs})
 		return
 	}
 
 	// Обычная ошибка
-	c.JSON(status, TokenErrorResponse{Error: err.Error()})
+	c.JSON(status, ErrorResponse{Error: err.Error()})
 }
 
 // HandleError обрабатывает ошибки и возвращает соответствующий HTTP статус и сообщение.
@@ -79,11 +71,6 @@ func HandleError(c *gin.Context, err error, notFoundErr error, notFoundMsg strin
 
 // ErrorResponse — стандартное сообщение об ошибке.
 type ErrorResponse struct {
-	Error string `json:"error"`
-}
-
-// TokenErrorResponse нужен для унификации в формате json при не-валидации.
-type TokenErrorResponse struct {
 	Error string `json:"error"`
 }
 
