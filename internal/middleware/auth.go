@@ -5,6 +5,7 @@
 package middleware
 
 import (
+	"fmt"
 	"net/http"
 	"strings"
 
@@ -29,8 +30,10 @@ func IsTokenInvalidated(token string) bool {
 func Auth(secret string) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		header := c.GetHeader("Authorization")
+		fmt.Printf("[DEBUG] Authorization header: %s\n", header)
 		parts := strings.SplitN(header, " ", 2)
 		if len(parts) != 2 || parts[0] != "Bearer" {
+			fmt.Println("[DEBUG] Invalid Authorization header format")
 			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "требуется авторизация"})
 			return
 		}
@@ -38,19 +41,23 @@ func Auth(secret string) gin.HandlerFunc {
 			return []byte(secret), nil
 		})
 		if err != nil || !token.Valid {
+			fmt.Printf("[DEBUG] Token parsing error: %v\n", err)
 			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "некорректный токен"})
 			return
 		}
 		claims, ok := token.Claims.(jwt.MapClaims)
 		if !ok {
+			fmt.Println("[DEBUG] Invalid token claims")
 			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "некорректные данные"})
 			return
 		}
 		userID, ok := claims["user_id"].(float64)
 		if !ok {
+			fmt.Println("[DEBUG] Missing or invalid user_id in token claims")
 			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "некорректные данные"})
 			return
 		}
+		fmt.Printf("[DEBUG] Token valid, user_id: %v\n", userID)
 		c.Set("user_id", uint(userID))
 		c.Next()
 	}

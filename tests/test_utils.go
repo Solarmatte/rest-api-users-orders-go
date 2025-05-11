@@ -37,9 +37,15 @@ func getTestDB(t *testing.T) *gorm.DB {
 	)
 
 	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
-	require.NoError(t, err, "не удалось подключиться к PostgreSQL")
+	if err != nil {
+		t.Fatalf("не удалось подключиться к PostgreSQL: %v", err)
+	}
 
-	// Мигрируем сразу обе модели
+	// Проверяем, что объект db не nil
+	if db == nil {
+		t.Fatalf("gorm.Open вернул nil")
+	}
+
 	require.NoError(t, db.AutoMigrate(&models.User{}, &repositories.Order{}))
 
 	return db

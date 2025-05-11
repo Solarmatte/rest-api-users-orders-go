@@ -6,6 +6,7 @@ package repositories
 
 import (
 	"context"
+	"fmt"
 	"strconv"
 
 	"kvant_task/internal/models"
@@ -35,6 +36,9 @@ func (r *UserRepo) GetByEmail(ctx context.Context, email string) (*models.User, 
 }
 
 func (r *UserRepo) GetByID(ctx context.Context, id uint) (*models.User, error) {
+	if id == 0 {
+		return nil, fmt.Errorf("ID должен быть положительным целым числом")
+	}
 	var u models.User
 	err := r.db.WithContext(ctx).
 		First(&u, id).Error

@@ -7,6 +7,7 @@ package services
 import (
 	"context"
 	"errors"
+	"fmt"
 	"log"
 	"time"
 
@@ -130,7 +131,7 @@ func (s *UserService) Create(ctx context.Context, req *RegisterRequest) (*UserRe
 // Login проверяет учётные данные и возвращает JWT
 func (s *UserService) Login(ctx context.Context, req *LoginRequest) (*TokenResponse, error) {
 	u, err := s.repo.GetByEmail(ctx, req.Email)
-	if err != nil {
+	if (err != nil) {
 		return nil, ErrInvalidCredentials
 	}
 	if bcrypt.CompareHashAndPassword([]byte(u.PasswordHash), []byte(req.Password)) != nil {
@@ -169,6 +170,9 @@ func (s *UserService) Count(ctx context.Context, f *UserFilter) (int64, error) {
 
 // GetByID возвращает пользователя по ID.
 func (s *UserService) GetByID(ctx context.Context, id uint) (*UserResponse, error) {
+	if id == 0 {
+		return nil, fmt.Errorf("ID должен быть положительным целым числом")
+	}
 	u, err := s.repo.GetByID(ctx, id)
 	if err != nil {
 		return nil, err
