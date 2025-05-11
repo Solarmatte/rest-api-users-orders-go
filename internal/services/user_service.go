@@ -7,6 +7,7 @@ package services
 import (
 	"context"
 	"errors"
+	"log"
 	"time"
 
 	"kvant_task/internal/models"
@@ -95,15 +96,19 @@ func toUserResponse(u *models.User) *UserResponse {
 
 // Create создаёт пользователя и возвращает его данные
 func (s *UserService) Create(ctx context.Context, req *RegisterRequest) (*UserResponse, error) {
-	// проверяем, нет ли уже такого email
+	// Add logging for user creation
+	log.Printf("Attempting to create user with email: %s", req.Email)
 	if _, err := s.repo.GetByEmail(ctx, req.Email); err == nil {
+		log.Printf("User with email %s already exists", req.Email)
 		return nil, ErrUserExists
 	} else if err != gorm.ErrRecordNotFound {
+		log.Printf("Error checking user existence: %v", err)
 		return nil, err
 	}
 
 	hash, err := bcrypt.GenerateFromPassword([]byte(req.Password), bcrypt.DefaultCost)
 	if err != nil {
+		log.Printf("Error generating password hash: %v", err)
 		return nil, err
 	}
 
@@ -114,8 +119,10 @@ func (s *UserService) Create(ctx context.Context, req *RegisterRequest) (*UserRe
 		PasswordHash: string(hash),
 	}
 	if err := s.repo.Create(ctx, u); err != nil {
+		log.Printf("Error creating user: %v", err)
 		return nil, err
 	}
+	log.Printf("User created successfully with ID: %d", u.ID)
 
 	return toUserResponse(u), nil
 }
@@ -171,8 +178,11 @@ func (s *UserService) GetByID(ctx context.Context, id uint) (*UserResponse, erro
 
 // Update обновляет пользователя.
 func (s *UserService) Update(ctx context.Context, id uint, req *UpdateRequest) (*UserResponse, error) {
+	// Add logging for user update
+	log.Printf("Attempting to update user with ID: %d", id)
 	u, err := s.repo.GetByID(ctx, id)
 	if err != nil {
+		log.Printf("Error fetching user: %v", err)
 		return nil, err
 	}
 	if req.Name != nil {
@@ -185,12 +195,21 @@ func (s *UserService) Update(ctx context.Context, id uint, req *UpdateRequest) (
 		u.Age = *req.Age
 	}
 	if err := s.repo.Update(ctx, u); err != nil {
+		log.Printf("Error updating user: %v", err)
 		return nil, err
 	}
+	log.Printf("User updated successfully with ID: %d", u.ID)
 	return toUserResponse(u), nil
 }
 
 // Delete удаляет пользователя.
 func (s *UserService) Delete(ctx context.Context, id uint) error {
-	return s.repo.Delete(ctx, id)
+	// Add logging for user deletion
+	log.Printf("Attempting to delete user with ID: %d", id)
+	if err := s.repo.Delete(ctx, id); err != nil {
+		log.Printf("Error deleting user: %v", err)
+		return err
+	}
+	log.Printf("User deleted successfully with ID: %d", id)
+	return nil
 }

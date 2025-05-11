@@ -2,6 +2,7 @@ package services
 
 import (
 	"context"
+	"log"
 	"time"
 
 	"kvant_task/internal/repositories"
@@ -54,6 +55,8 @@ func toOrderResponse(o *repositories.Order) *OrderResponse {
 
 // Create создаёт новый заказ и возвращает его DTO.
 func (s *OrderService) Create(ctx context.Context, userID uint, req *CreateOrderRequest) (*OrderResponse, error) {
+	// Add logging for order creation
+	log.Printf("Attempting to create order for user ID: %d", userID)
 	o := &repositories.Order{
 		UserID:   userID,
 		Product:  req.Product,
@@ -61,8 +64,10 @@ func (s *OrderService) Create(ctx context.Context, userID uint, req *CreateOrder
 		Price:    req.Price,
 	}
 	if err := s.repo.Create(ctx, o); err != nil {
+		log.Printf("Error creating order: %v", err)
 		return nil, err
 	}
+	log.Printf("Order created successfully with ID: %d", o.ID)
 	return toOrderResponse(o), nil
 }
 
