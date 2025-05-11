@@ -30,51 +30,52 @@ import (
 )
 
 // main.go
-// Этот файл является точкой входа в приложение.
-// Реализует запуск сервера, подключение к базе данных и обработку сигналов завершения.
+// Точка входа в приложение Kvant Task API.
+// Запускает HTTP-сервер, подключает БД, обрабатывает сигналы завершения.
 
+// main запускает сервер Kvant Task API.
 func main() {
-	// Загрузка конфигурации из файла или переменных окружения
+	// Загрузка конфигурации
 	cfg, err := config.LoadConfig()
 	if err != nil {
-		log.Fatalf("[main] конфигурация: %v", err)
+		log.Fatalf("[main] ошибка конфигурации: %v", err)
 	}
 
 	// Подключение к базе данных
 	db, err := bootstrap.Database(cfg)
 	if err != nil {
-		log.Fatalf("[main] БД: %v", err)
+		log.Fatalf("[main] ошибка БД: %v", err)
 	}
-	log.Println("[main] успешно подключились к БД")
+	log.Println("[main] Подключение к БД успешно")
 
-	// Создание нового роутера с конфигурацией и подключением к БД
+	// Инициализация роутера
 	r := router.New(db, cfg)
 
-	// Настройка HTTP-сервера
+	// HTTP-сервер
 	srv := &http.Server{
-		Addr:    cfg.Server.Address, // Адрес сервера
-		Handler: r,                  // Роутер для обработки запросов
+		Addr:    cfg.Server.Address,
+		Handler: r,
 	}
 
 	// Запуск сервера в отдельной горутине
 	go func() {
-		log.Printf("[main] сервер запущен на %s", cfg.Server.Address)
+		log.Printf("[main] Сервер запущен на %s", cfg.Server.Address)
 		if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
 			log.Fatalf("[main] ListenAndServe: %v", err)
 		}
 	}()
 
-	// Ожидание сигнала завершения (SIGINT или SIGTERM)
+	// Ожидание сигнала завершения
 	quit := make(chan os.Signal, 1)
 	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
 	<-quit
-	log.Println("[main] получен сигнал завершения")
+	log.Println("[main] Получен сигнал завершения, останавливаем сервер...")
 
-	// Завершение работы сервера с таймаутом
+	// Корректное завершение работы сервера
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 	if err := srv.Shutdown(ctx); err != nil {
 		log.Fatalf("[main] Shutdown: %v", err)
 	}
-	log.Println("[main] сервер остановлен")
+	log.Println("[main] Сервер остановлен корректно")
 }
