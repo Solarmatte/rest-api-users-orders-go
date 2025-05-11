@@ -10,7 +10,9 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-// TestOrderRepository covers basic operations on OrderRepo.
+// TestOrderRepository проверяет основные операции с репозиторием заказов.
+// Тест включает создание пользователя, добавление заказов, получение списка заказов
+// и проверку корректности данных.
 func TestOrderRepository(t *testing.T) {
 	db := getTestDB(t)
 	cleanUsers(t, db)
@@ -28,7 +30,9 @@ func TestOrderRepository(t *testing.T) {
 
 	orderRepo := repositories.NewOrderRepo(db)
 
-	// 1. Create orders
+	// 1. Создание заказов
+	// Проверяем успешное добавление заказов в базу данных.
+	// Убедимся, что идентификаторы заказов не равны нулю.
 	o1 := &repositories.Order{
 		UserID:   user.ID,
 		Product:  "Prod1",
@@ -48,6 +52,8 @@ func TestOrderRepository(t *testing.T) {
 	require.NotZero(t, o2.ID)
 
 	// 2. ListByUser
+	// Проверяем, что метод ListByUser возвращает корректный список заказов
+	// для указанного пользователя.
 	list, err := orderRepo.ListByUser(context.Background(), user.ID)
 	require.NoError(t, err)
 	require.Len(t, list, 2)

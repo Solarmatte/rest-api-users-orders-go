@@ -18,7 +18,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-// setupUserRouter инициализирует тестовую БД, роутер и возвращает Gin-Engine.
+// setupUserRouter инициализирует тестовую базу данных, роутер и возвращает Gin-Engine.
 func setupUserRouter(t *testing.T) *gin.Engine {
 	db := getTestDB(t)
 	cleanUsers(t, db)
@@ -41,6 +41,9 @@ func setupUserRouter(t *testing.T) *gin.Engine {
 	return r
 }
 
+// Test_CreateUser_Success проверяет успешное создание пользователя.
+// Тест отправляет POST-запрос с данными пользователя и проверяет, что ответ
+// содержит корректные данные, включая имя, email и возраст.
 func Test_CreateUser_Success(t *testing.T) {
 	r := setupUserRouter(t)
 
@@ -65,6 +68,9 @@ func Test_CreateUser_Success(t *testing.T) {
 	require.Equal(t, 25, resp.Age)
 }
 
+// Test_Login_Success проверяет успешную авторизацию пользователя.
+// Тест отправляет POST-запрос с данными для входа и проверяет, что ответ
+// содержит корректный JWT-токен.
 func Test_Login_Success(t *testing.T) {
 	r := setupUserRouter(t)
 	db := getTestDB(t)

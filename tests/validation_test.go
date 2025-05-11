@@ -33,10 +33,12 @@ func setupTestRouter() *gin.Engine {
 	return r
 }
 
+// TestNegativeIDValidation проверяет валидацию отрицательных идентификаторов.
+// Тест включает проверку эндпоинтов GetByID и ListByUser с отрицательным ID.
 func TestNegativeIDValidation(t *testing.T) {
 	r := setupTestRouter()
 
-	// Test for GetByID with negative ID
+	// Проверяем, что запрос к GetByID с отрицательным ID возвращает ошибку 400.
 	req, _ := http.NewRequest(http.MethodGet, "/users/-1", nil)
 	w := httptest.NewRecorder()
 	r.ServeHTTP(w, req)
@@ -44,7 +46,7 @@ func TestNegativeIDValidation(t *testing.T) {
 	require.Equal(t, http.StatusBadRequest, w.Code)
 	require.Contains(t, w.Body.String(), "ID должен быть положительным целым числом")
 
-	// Test for ListByUser with negative ID
+	// Проверяем, что запрос к ListByUser с отрицательным ID возвращает ошибку 400.
 	req, _ = http.NewRequest(http.MethodGet, "/users/-1/orders", nil)
 	w = httptest.NewRecorder()
 	r.ServeHTTP(w, req)

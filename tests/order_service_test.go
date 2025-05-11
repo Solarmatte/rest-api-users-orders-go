@@ -10,7 +10,8 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-// TestOrderService covers Create and ListByUser on the service layer.
+// TestOrderService проверяет методы сервиса заказов, включая создание заказа
+// и получение списка заказов для пользователя.
 func TestOrderService(t *testing.T) {
 	db := getTestDB(t)
 	cleanUsers(t, db)
@@ -29,6 +30,8 @@ func TestOrderService(t *testing.T) {
 	orderSvc := services.NewOrderService(db)
 
 	t.Run("CreateOrder_Success", func(t *testing.T) {
+		// Проверяем успешное создание заказа через сервисный слой.
+		// Убедимся, что данные заказа корректно сохраняются в базе данных.
 		req := &services.CreateOrderRequest{
 			Product:  "Gadget",
 			Quantity: 3,

@@ -12,7 +12,8 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-// TestUserService covers Create, DuplicateEmail, Login, List, GetByID, Update, Delete.
+// TestUserService проверяет основные методы сервиса пользователей, включая создание,
+// авторизацию, получение, обновление и удаление пользователей.
 func TestUserService(t *testing.T) {
 	db := getTestDB(t)
 	cleanUsers(t, db)
@@ -21,6 +22,8 @@ func TestUserService(t *testing.T) {
 
 	// 1. Create success
 	t.Run("Create_Success", func(t *testing.T) {
+		// Проверяем успешное создание пользователя через сервисный слой.
+		// Убедимся, что данные пользователя корректно сохраняются в базе данных.
 		u, err := svc.Create(context.Background(), &services.RegisterRequest{
 			Name:     "Alice",
 			Email:    "alice@example.com",
@@ -36,6 +39,8 @@ func TestUserService(t *testing.T) {
 
 	// 2. Create duplicate
 	t.Run("Create_DuplicateEmail", func(t *testing.T) {
+		// Проверяем, что попытка создать пользователя с уже существующим email
+		// возвращает ошибку ErrUserExists.
 		_, err := svc.Create(context.Background(), &services.RegisterRequest{
 			Name:     "Alice",
 			Email:    "alice@example.com",
@@ -47,6 +52,8 @@ func TestUserService(t *testing.T) {
 
 	// 3. Login success
 	t.Run("Login_Success", func(t *testing.T) {
+		// Проверяем успешную авторизацию пользователя через сервисный слой.
+		// Убедимся, что возвращается корректный JWT-токен.
 		tokResp, err := svc.Login(context.Background(), &services.LoginRequest{
 			Email:    "alice@example.com",
 			Password: "password123",
@@ -110,7 +117,7 @@ func TestUserService(t *testing.T) {
 		require.NoError(t, err)
 		require.Len(t, minList, 2)
 		for _, u := range minList {
-			require.GreaterOrEqual(t, u.Age, 35)
+			require.GreaterOrEqual(t, u.Age, 35) // Исправлено: передаём корректные аргументы
 		}
 
 		// pagination: page2 limit=2 → two users

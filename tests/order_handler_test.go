@@ -17,7 +17,8 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-// setupOrderRouter инициализирует тестовую БД, создаёт пользователя и возвращает Gin-роутер и его ID.
+// setupOrderRouter инициализирует тестовую базу данных, создаёт пользователя
+// и возвращает Gin-роутер для тестирования эндпоинтов заказов.
 func setupOrderRouter(t *testing.T) (*gin.Engine, uint) {
 	db := getTestDB(t)
 	cleanUsers(t, db)
@@ -41,6 +42,9 @@ func setupOrderRouter(t *testing.T) (*gin.Engine, uint) {
 	return r, user.ID
 }
 
+// Test_CreateOrder_Success проверяет успешное создание заказа для пользователя.
+// Тест отправляет POST-запрос с данными заказа и проверяет, что ответ содержит
+// корректные данные, включая продукт, количество, цену и идентификатор пользователя.
 func Test_CreateOrder_Success(t *testing.T) {
 	r, userID := setupOrderRouter(t)
 
@@ -69,6 +73,9 @@ func Test_CreateOrder_Success(t *testing.T) {
 	require.NotEmpty(t, resp["created_at"])
 }
 
+// Test_ListOrders_Success проверяет успешное получение списка заказов пользователя.
+// Тест создаёт несколько заказов, отправляет GET-запрос и проверяет, что все заказы
+// возвращаются корректно.
 func Test_ListOrders_Success(t *testing.T) {
 	r, userID := setupOrderRouter(t)
 
