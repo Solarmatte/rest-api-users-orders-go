@@ -27,14 +27,17 @@ services:
     ports:
       - "8080:8080"
     environment:
-      - SERVER_ADDRESS=${SERVER_ADDRESS:-:8080}
-      - JWT_SECRET=${JWT_SECRET:-example_secret}
-      - APP_ENV=production
-      - DB_HOST=db
-      - DB_PORT=${POSTGRES_PORT:-5432}
-      - DB_USER=${POSTGRES_USER:-postgres}
-      - DB_PASSWORD=${POSTGRES_PASSWORD:-password}
-      - DB_NAME=${POSTGRES_DB:-rest-api-db}
+      # Сервер
+      SERVER_ADDRESS: ${SERVER_ADDRESS:-:8080}
+      JWT_SECRET: ${JWT_SECRET:-example_secret}
+      APP_ENV: production
+
+      # База данных (названия совпадают с тем, что читает config.LoadConfig)
+      POSTGRES_HOST: db
+      POSTGRES_PORT: ${POSTGRES_PORT:-5432}
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-password}
+      POSTGRES_DB: ${POSTGRES_DB:-rest-api-db}
     depends_on:
       db:
         condition: service_healthy
@@ -43,6 +46,7 @@ services:
 
 volumes:
   db_data:
+
 
 networks:
   kvant_network:

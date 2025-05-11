@@ -1,26 +1,28 @@
-# Используем многоэтапную сборку для уменьшения размера образа
+# ── builder stage ───────────────────────────────────────────────────────────────
 FROM golang:1.24 AS builder
-
 WORKDIR /app
 
-# Копируем файлы зависимостей и загружаем их
+# Статическая сборка без CGO (бинарник не будет зависеть от glibc)
+ENV CGO_ENABLED=0
+ENV GOOS=linux
+
+# Копируем зависимости и скачиваем их
 COPY go.mod go.sum ./
 RUN go mod download
 
-# Копируем весь проект и собираем бинарный файл
+# Копируем весь код и собираем бинарник
 COPY . .
-RUN go build -o /app/main ./cmd
+RUN go build -ldflags="-s -w" -o main ./cmd
 
-# Используем минимальный базовый образ для финального этапа
-FROM alpine:latest
-
+# ── final stage ────────────────────────────────────────────────────────────────
+FROM scratch
 WORKDIR /app
 
-# Копируем собранный бинарный файл из предыдущего этапа
+# Копируем собранный бинарник из builder
 COPY --from=builder /app/main .
 
-# Отладка: вывод содержимого директории /app
-RUN ls -la /app
+# Если нужно HTTPS/SSL, можно добавить сертификаты:
+# COPY --from=builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
 
-# Команда запуска приложения
-CMD ["/app/main"]
+# Точка входа
+ENTRYPOINT ["/app/main"]
