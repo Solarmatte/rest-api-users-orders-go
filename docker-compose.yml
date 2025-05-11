@@ -7,7 +7,7 @@ services:
     environment:
       POSTGRES_USER: ${POSTGRES_USER:-postgres}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-password}
-      POSTGRES_DB: ${POSTGRES_DB:-kvant_db}
+      POSTGRES_DB: ${POSTGRES_DB:-rest-api-db}
     ports:
       - "${POSTGRES_PORT:-5432}:5432"
     volumes:
@@ -17,6 +17,8 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+    networks:
+      - kvant_network
 
   app:
     build:
@@ -32,10 +34,15 @@ services:
       - DB_PORT=${POSTGRES_PORT:-5432}
       - DB_USER=${POSTGRES_USER:-postgres}
       - DB_PASSWORD=${POSTGRES_PASSWORD:-password}
-      - DB_NAME=${POSTGRES_DB:-kvant_db}
+      - DB_NAME=${POSTGRES_DB:-rest-api-db}
     depends_on:
       db:
         condition: service_healthy
+    networks:
+      - kvant_network
 
 volumes:
   db_data:
+
+networks:
+  kvant_network:
