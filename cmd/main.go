@@ -1,5 +1,4 @@
 // @title           API для управления пользователями и заказами
-// @version         1.0
 // @description     REST API на Go + PostgreSQL с авторизацией, Swagger и фильтрацией
 
 // @contact.name   Junior Golang Developer

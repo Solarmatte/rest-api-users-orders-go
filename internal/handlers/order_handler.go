@@ -42,7 +42,7 @@ func NewOrderHandler(db *gorm.DB) *OrderHandler {
 func (h *OrderHandler) CreateForUser(c *gin.Context) {
 	uid, err := strconv.Atoi(c.Param("id"))
 	if err != nil || uid <= 0 {
-		HandleError(c, fmt.Errorf("некорректный ID"), nil, "ID должен быть положительным целым числом")
+		HandleError(c, fmt.Errorf("ID должен быть положительным целым числом"), nil, "ID должен быть положительным целым числом")
 		return
 	}
 	userSvc := services.NewUserService(h.svc.GetDB(), "")
@@ -77,7 +77,7 @@ func (h *OrderHandler) CreateForUser(c *gin.Context) {
 func (h *OrderHandler) ListByUser(c *gin.Context) {
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil || id <= 0 {
-		HandleError(c, fmt.Errorf("некорректный ID"), nil, "ID должен быть положительным целым числом")
+		HandleError(c, fmt.Errorf("ID должен быть положительным целым числом"), nil, "ID должен быть положительным целым числом")
 		return
 	}
 	list, err := h.svc.ListByUser(c.Request.Context(), uint(id))

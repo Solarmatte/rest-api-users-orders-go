@@ -37,33 +37,38 @@ func setupTestRouter(t *testing.T) *gin.Engine {
 	return r
 }
 
-// func TestNegativeIDValidation(t *testing.T) {
-// 	r := setupTestRouter(t)
+func TestNegativeIDValidation(t *testing.T) {
+	r := setupTestRouter(t)
 
-// 	// GetByID c отрицательным ID
-// 	req, _ := http.NewRequest(http.MethodGet, "/users/-1", nil)
-// 	w := httptest.NewRecorder()
-// 	r.ServeHTTP(w, req)
-// 	fmt.Printf("[DEBUG] GET /users/-1: %s\n", w.Body.String())
-// 	require.Equal(t, http.StatusBadRequest, w.Code)
-// 	require.Contains(t, w.Body.String(), "ID должен быть положительным целым числом")
+	token := generateTestToken(1, "test-secret")
 
-// 	// ListByUser c отрицательным ID
-// 	req, _ = http.NewRequest(http.MethodGet, "/users/-1/orders", nil)
-// 	w = httptest.NewRecorder()
-// 	r.ServeHTTP(w, req)
-// 	fmt.Printf("[DEBUG] GET /users/-1/orders: %s\n", w.Body.String())
-// 	require.Equal(t, http.StatusBadRequest, w.Code)
-// 	require.Contains(t, w.Body.String(), "ID должен быть положительным целым числом")
+	// GetByID c отрицательным ID
+	req, _ := http.NewRequest(http.MethodGet, "/users/-1", nil)
+	req.Header.Set("Authorization", "Bearer "+token)
+	w := httptest.NewRecorder()
+	r.ServeHTTP(w, req)
+	fmt.Printf("[DEBUG] GET /users/-1: %s\n", w.Body.String())
+	require.Equal(t, http.StatusBadRequest, w.Code)
+	require.Contains(t, w.Body.String(), "ID должен быть положительным целым числом")
 
-// 	// CreateForUser c отрицательным ID
-// 	req, _ = http.NewRequest(http.MethodPost, "/users/-1/orders", nil)
-// 	w = httptest.NewRecorder()
-// 	r.ServeHTTP(w, req)
-// 	fmt.Printf("[DEBUG] POST /users/-1/orders: %s\n", w.Body.String())
-// 	require.Equal(t, http.StatusBadRequest, w.Code)
-// 	require.Contains(t, w.Body.String(), "ID должен быть положительным целым числом")
-// }
+	// ListByUser c отрицательным ID
+	req, _ = http.NewRequest(http.MethodGet, "/users/-1/orders", nil)
+	req.Header.Set("Authorization", "Bearer "+token)
+	w = httptest.NewRecorder()
+	r.ServeHTTP(w, req)
+	fmt.Printf("[DEBUG] GET /users/-1/orders: %s\n", w.Body.String())
+	require.Equal(t, http.StatusBadRequest, w.Code)
+	require.Contains(t, w.Body.String(), "ID должен быть положительным целым числом")
+
+	// CreateForUser c отрицательным ID
+	req, _ = http.NewRequest(http.MethodPost, "/users/-1/orders", nil)
+	req.Header.Set("Authorization", "Bearer "+token)
+	w = httptest.NewRecorder()
+	r.ServeHTTP(w, req)
+	fmt.Printf("[DEBUG] POST /users/-1/orders: %s\n", w.Body.String())
+	require.Equal(t, http.StatusBadRequest, w.Code)
+	require.Contains(t, w.Body.String(), "ID должен быть положительным целым числом")
+}
 
 func TestCreateOrderForNonExistentUser(t *testing.T) {
 	r := setupTestRouter(t)
