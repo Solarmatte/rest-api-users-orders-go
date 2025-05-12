@@ -28,7 +28,7 @@ func getTestDB(t *testing.T) *gorm.DB {
 	port := getEnv("POSTGRES_PORT", "5432")
 	user := getEnv("POSTGRES_USER", "postgres")
 	pass := getEnv("POSTGRES_PASSWORD", "qwerty")
-	dbname := getEnv("POSTGRES_DB", "rest-api-db") // Изменено на использование rest-api-db
+	dbname := getEnv("POSTGRES_DB", "rest-api-db") 
 	sslmode := getEnv("POSTGRES_SSLMODE", "disable")
 
 	dsn := fmt.Sprintf(
